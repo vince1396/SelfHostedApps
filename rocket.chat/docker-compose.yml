@@ -2,7 +2,7 @@ version: '3.6'
 
 services:
   rocketchat:
-    container_name: 'rocketchat'
+    container_name: rocketchat
     image: registry.rocket.chat/rocketchat/rocket.chat:latest
     command: >
       bash -c
@@ -33,7 +33,7 @@ services:
       - "traefik.frontend.rule=Host: your.domain.tld"
 
   mongo:
-    container_name: 'mongodb-rocketchat'
+    container_name: mongodb-rocketchat
     image: mongo:4.0
     restart: unless-stopped
     volumes:

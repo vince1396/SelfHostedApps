@@ -6,7 +6,7 @@ volumes:
 
 services:
   db:
-    container_name: 'mariadb-nextcloud'
+    container_name: mariadb-nextcloud
     image: mariadb
     restart: unless-stopped
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
@@ -19,7 +19,7 @@ services:
       - MYSQL_USER=nextcloud
 
   app:
-    container_name: 'nextcloud'
+    container_name: nextcloud
     image: nextcloud
     restart: unless-stopped
     ports:
