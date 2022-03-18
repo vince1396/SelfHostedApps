@@ -33,6 +33,7 @@ services:
       - "traefik.frontend.rule=Host: your.domain.tld"
 
   mongo:
+    container_name: 'mongodb-rocketchat'
     image: mongo:4.0
     restart: unless-stopped
     volumes:
