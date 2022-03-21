@@ -2,3 +2,9 @@ rocket.chat/data
 rocket.chat/uploads
 nextcloud/nextcloud
 nextcloud/db
+nextcloud/acme
+nextcloud/certs
+nextcloud/html
+nextcloud/proxy
+nextcloud/nextcloud
+nextcloud/vhost.d

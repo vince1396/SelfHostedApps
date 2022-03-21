@@ -5,6 +5,10 @@ volumes:
   db:
 
 services:
+  redis:
+    image: redis:alpine
+    restart: always
+
   db:
     container_name: mariadb-nextcloud
     image: mariadb
@@ -18,14 +22,36 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
 
+  proxy:
+    build: ./proxy
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - ./certs:/etc/nginx/certs:ro
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  letsencrypt-companion:
+    image: nginxproxy/acme-companion
+    restart: unless-stopped
+    volumes:
+      - ./certs:/etc/nginx/certs
+      - ./acme:/etc/acme.sh
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - proxy
+
   app:
     container_name: nextcloud
     image: nextcloud
     restart: unless-stopped
-    ports:
-      - 8080:80
-    links:
-      - db
     volumes:
       - nextcloud:/var/www/html
     environment:
@@ -33,3 +59,15 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
+      - REDIS_HOST=redis
+      - VIRTUAL_HOST=nextcloud.localhost
+      - LETSENCRYPT_HOST=letsencrypt-companion
+      - LETSENCRYPT_EMAIL=vincent.cotini96@gmail.com
+      - NEXTCLOUD_TRUSTED_DOMAINS=localhost nextcloud.localhost 127.0.0.1 192.168.43.132
+      - APACHE_DISABLE_REWRITE_IP=1
+      - TRUSTED_PROXIES=proxy://proxy proxy
+    depends_on:
+      - db
+      - redis
+      - proxy
+      - letsencrypt-companion
